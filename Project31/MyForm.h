@@ -14,7 +14,6 @@ using namespace std;
 
 const int PORT = 12345;
 
-
 namespace Project31 {
 #define PACKET_BUFF_SIZE 10
 	using namespace System;
@@ -35,22 +34,15 @@ namespace Project31 {
 		bool sp = false;
 		bool er = false;
 
-
-
-
-
 	public:
 		bool isListening = false;
 
 	public:
 		MyForm(void)
 		{
-
 			InitializeComponent();
 			try {
-				
-				
-				
+
 				WSADATA wsaData;
 				if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
 				cerr << "Failed to initialize Winsock!" << endl;
@@ -76,7 +68,6 @@ namespace Project31 {
 				// NULL - default TCP protocol
 
 
-
 				clientSocket = socket(AF_INET, SOCK_STREAM, 0);
 				if (clientSocket == INVALID_SOCKET) {
 					cerr << "Error creating socket" << endl;
@@ -98,16 +89,6 @@ namespace Project31 {
 				MessageBox::Show(ex, "Error", MessageBoxButtons::OK, MessageBoxIcon::Error);
 				exit(-1);
 			}
-				
-			
-
-
-			
-			//
-			//TODO: Add the constructor code here
-			//
-
-
 
 		}
 
@@ -129,9 +110,12 @@ namespace Project31 {
 				tb_er->Text = gcnew String(str.c_str());
 			}
 			else {
+				continue;
+				/*
 				delete[] buffer;
 				MessageBox::Show("Received Invalid Data From Serever", "Error", MessageBoxButtons::OK, MessageBoxIcon::Error);
 				exit(-1);
+				*/
 			}
 			memset(buffer, '\0', 1000);
 
@@ -145,7 +129,7 @@ namespace Project31 {
 		}
 		if (wf) {
 			btn_wf->Text = "Subscribe";
-			tb_wf->Text = "You dont subscribe yet.";
+			tb_wf->Text = "You are not subscribed.";
 			char* strin2 = new char[2];
 			strin2 = "00";
 			send(clientSocket, strin2, 2, 0);
@@ -167,7 +151,7 @@ namespace Project31 {
 			   }
 			   if (sp) {
 				   btn_sp->Text = "Subscribe";
-				   tb_sp->Text = "You dont subscribe yet.";
+				   tb_sp->Text = "You are not subscribed.";
 				   char* strin2 = new char[2];
 				   strin2 = "10";
 				   send(clientSocket, strin2, 2, 0);
@@ -179,7 +163,6 @@ namespace Project31 {
 				   char* strin2 = new char[2];
 				   strin2 = "11";
 				   send(clientSocket, strin2, 2, 0);
-				   //kill thread?
 				   sp = true;
 			   }
 		   }
@@ -190,7 +173,7 @@ namespace Project31 {
 			   }
 			   if (er) {
 				   btn_er->Text = "Subscribe";
-				   tb_er->Text = "You dont subscribe yet.";
+				   tb_er->Text = "You are not subscribed.";
 				   char* strin2 = new char[2];
 				   strin2 = "20";
 				   send(clientSocket, strin2, 2, 0);
@@ -204,8 +187,9 @@ namespace Project31 {
 				   send(clientSocket, strin2, 2, 0);
 				   er = true;
 			   }
-		   }
-		   void Listening() {
+		   } 
+		   
+		   void Listening() {  
 			   Thread^ MyThread = nullptr;
 			   ThreadStart^ ThreadMethod = gcnew ThreadStart(this, &MyForm::obtainingData);
 
@@ -213,6 +197,7 @@ namespace Project31 {
 
 			   MyThread->Start();
 		   }
+		  
 
 	private: 
 		System::Void MyForm_FormClosing(System::Object^ sender, System::Windows::Forms::FormClosingEventArgs^ e) {

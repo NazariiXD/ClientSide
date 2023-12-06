@@ -1,11 +1,16 @@
 #include "MyForm.h"
 
+#include "MyForm.h"
+
 using namespace Project31;
-int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
-	Application::EnableVisualStyles();
-	Application::SetCompatibleTextRenderingDefault(false);
-	Application::Run(gcnew MyForm);
+[STAThread]
+int main() {
+    Application::EnableVisualStyles();
+    Application::SetCompatibleTextRenderingDefault(0);
 
-	return 0;
+    Project31::MyForm form;
+    Application::Run(%form);
 
+    return 0;
 }
+
