@@ -15,14 +15,13 @@ using namespace std;
 const int PORT = 12345;
 
 
-
 namespace Project31 {
 
 	struct mailingData {
 		short int type;
-		std::string message;
+		char message[512];
 	};
-
+	short int mailiing_status;
 #define PACKET_BUFF_SIZE 10
 	using namespace System;
 	using namespace System::ComponentModel;
@@ -31,21 +30,17 @@ namespace Project31 {
 	using namespace System::Data;
 	using namespace System::Drawing;
 	using namespace System::Threading;
-	/// <summary>
-	/// Summary for MyForm
-	/// </summary>
+	
+
 	public ref class MyForm : public System::Windows::Forms::Form
 	{
+
 	public:
 		SOCKET clientSocket;
 		bool wf = false;
 		bool sp = false;
-		bool er = false;
+		bool er = false;	
 
-	public:
-		bool isListening = false;
-		short int thr_count = 0;
-		Mutex^ mutex;
 	public:
 		MyForm(void)
 		{
@@ -54,9 +49,9 @@ namespace Project31 {
 
 				WSADATA wsaData;
 				if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-				cerr << "Failed to initialize Winsock!" << endl;
-				String^ err = "Failed to initialize Winsock!";
-			    throw err;
+					cerr << "Failed to initialize Winsock!" << endl;
+					String^ err = "Failed to initialize Winsock!";
+					throw err;
 				}
 
 				sockaddr_in serverAddress{};
@@ -71,12 +66,10 @@ namespace Project31 {
 				serverAddress.sin_port = htons(PORT);
 				serverAddress.sin_family = AF_INET;
 
-				// Creating server socket
+				// Creating client socket
 				// AF_INET - internet socket
 				// SOCK_STREAM - stream socket (with creating a connection)
 				// NULL - default TCP protocol
-
-
 				clientSocket = socket(AF_INET, SOCK_STREAM, 0);
 				if (clientSocket == INVALID_SOCKET) {
 					cerr << "Error creating socket" << endl;
@@ -94,204 +87,107 @@ namespace Project31 {
 				}
 			}
 			catch (String^ ex) {
-			
+
 				MessageBox::Show(ex, "Error", MessageBoxButtons::OK, MessageBoxIcon::Error);
 				exit(-1);
 			}
-			mutex = gcnew Mutex();
+
+			mailiing_status = 0b000;
+			Listening();
 		}
 
 	public: void obtainingData() {
 
 		while (true) {
-			//char* buffer = new char[1000];
-			//memset(buff, '\0', 4);
-
-			/*
-			////////////////worked
-			char* buff = new char[4];
-			memset(buff, '\0', 4);
-			recv(clientSocket, (char*)buff, 4, 0);
-
-			if (buff[0] = 'f') {
-				std::string str = buff;
-				cout << str;
-				tb_wf->Text = (gcnew String(str.c_str()));
-			}
-			*/
-			//////////////////////
-
-		    //mailingData receivedPacket
-			//recv(clientSocket, reinterpret_cast<char*>(&receivedPacket), sizeof(mailingData), 0);
-
-		//	char version = buffer[0];
-		//	std::string str = buffer;
-
-			char* buff = new char[1000];
-			memset(buff, '\0', 1000);
-
 
 			mailingData receivedPacket;
-			//receivedPacket.message.capacity(1000);
-			//char* buff = new char[1000];
-			//memset(buff, '\0', 1000);
-			
-			recv(clientSocket, (char*)&receivedPacket, sizeof(mailingData), 0);
+			receivedPacket.type = 0b000;
+			memset(receivedPacket.message, '\0', sizeof(receivedPacket.message));
 
-			std::cout << receivedPacket.message;
+			recv(clientSocket, reinterpret_cast<char*>(&receivedPacket), sizeof(mailingData), 0);
 
 
-			//string str1 = buff.message.c_str();
-			std::string str = buff;
-			cout << str;
-			//mutex->WaitOne();
-			if (buff[0] == '1') {
+			if ((receivedPacket.type & 0b001) == 0b001) {
 
-				//std::string str = buff;
-				//cout << str;
-				str.erase(0, 1);
-				//cout << str;
-				tb_sp->Text = (gcnew String(str.c_str()));
-
+				tb_sp->Text = (gcnew String(receivedPacket.message));
 			}
-			else if (buff[0] == '2') {
+			else if ((receivedPacket.type & 0b010) == 0b010) {
 
-				//std::string str = buff;
-				//cout << str;
-				str.erase(0, 1);
-				//cout << str;
-				tb_er->Text = (gcnew String(str.c_str()));
+				tb_er->Text = (gcnew String(receivedPacket.message));
 			}
-			else if (buff[0] == '4') {
+			else if ((receivedPacket.type & 0b100) == 0b100) {
 
-				//std::string str = buff;
-				//cout << str;
-				str.erase(0, 1);
-				//cout << str;
-				tb_wf->Text = (gcnew String(str.c_str()));
+				tb_wf->Text = (gcnew String(receivedPacket.message));
 			}
 			else {
+				tb_sp->Text = (gcnew String("Ça korablem :)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))"));
+				tb_er->Text = (gcnew String("Ça korablem :)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))"));
+				tb_wf->Text = (gcnew String("Ça korablem :)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))"));
 				continue;
 			}
-			delete[] buff;
-			//std::string str = buff;
-			//tb_wf->Text = ( gcnew String(str.c_str()));
-			//mutex->ReleaseMutex();
-			/*
-			str.erase(0, 1);
-			if (version == '0') {
-				tb_wf->Text = gcnew String(str.c_str());
-			}
-			else if (version == '1') {
-				tb_sp->Text = gcnew String(str.c_str());
-			}
-			else if (version == '2') {
-				tb_er->Text = gcnew String(str.c_str());
-			}
-			else {
-				continue;
-				/*
-				delete[] buffer;
-				MessageBox::Show("Received Invalid Data From Serever", "Error", MessageBoxButtons::OK, MessageBoxIcon::Error);
-				exit(-1);
-				
-			}*/
-			//memset(buffer, '\0', 1000);
-			//memset(buff, '\0', 4);
-
 		}
 	}
+	
 	private: System::Void btn_wf_Click(System::Object^ sender, System::EventArgs^ e) {
-		if (!isListening) {
-			Listening();
-			thr_count++;
-			//if (thr_count == 3) {
-				isListening = true;
-			//}
-			cout << thr_count << "///////////////////////////////////////////";
-		}
+		
 		if (wf) {
 			btn_wf->Text = "Subscribe";
 			tb_wf->Text = "You are not subscribed.";
-			//char* strin2 = new char[2];
-			//strin2 = "00";
-			short int subscrp = 0b000; 
-			send(clientSocket, (char*)&subscrp, sizeof(subscrp), 0);
+			
+			short int subscrp = 0b011; 
+			mailiing_status = mailiing_status & subscrp;
+			send(clientSocket, (char*)&mailiing_status, sizeof(mailiing_status), 0);
 			wf = false;
 		}
 		else {
 			btn_wf->Text = "Unsubscribe";
 			tb_wf->Text = "";
-			char* strin2 = new char[2];
-			strin2 = "01";
+			
 			short int subscrp = 0b100;
-			send(clientSocket, (char*)&subscrp, sizeof(subscrp), 0);
+			mailiing_status = subscrp | mailiing_status;
+			send(clientSocket, (char*)&mailiing_status, sizeof(mailiing_status), 0);
 			wf = true;
 		}
 	}
 		   System::Void btn_sp_Click(System::Object^ sender, System::EventArgs^ e) {
-			   if (!isListening) {
-				   Listening();
-				   thr_count++;
-				 //  if (thr_count == 3) {
-					   isListening = true;
-				 //  }
-				   cout << thr_count << "///////////////////////////////////////////";
-			   }
+			
 			   if (sp) {
 				   btn_sp->Text = "Subscribe";
 				   tb_sp->Text = "You are not subscribed.";
-				   char* strin2 = new char[2];
-				   strin2 = "10"; //instead of that
-
-				   //set bit mask
-				   //bitmask to string
-				   short int subscrp = 0b000;
-				   send(clientSocket, (char*)&subscrp, sizeof(subscrp), 0);
+				  
+				   short int subscrp = 0b110;
+				   mailiing_status = mailiing_status & subscrp;
+				   send(clientSocket, (char*)&mailiing_status, sizeof(mailiing_status), 0);
 				   sp = false;
 			   }
 			   else {
 				   btn_sp->Text = "Unsubscribe";
 				   tb_sp->Text = "";
-				   char* strin2 = new char[2];
-				 //  strin2 = "11";
-				  // send(clientSocket, strin2, 2, 0);
+				
 				   short int subscrp = 0b001;
-				   send(clientSocket, (char*)&subscrp, sizeof(subscrp), 0);
-
+				   mailiing_status = mailiing_status | subscrp;
+				   send(clientSocket, (char*)&mailiing_status, sizeof(mailiing_status), 0);
 				   sp = true;
 			   }
 		   }
 		   System::Void btn_er_Click(System::Object^ sender, System::EventArgs^ e) {
-			   if (!isListening) {
-				   Listening();
-				   thr_count++;
-				   //if (thr_count == 3) {
-					  isListening = true;
-				  // }
-				   cout << thr_count << "///////////////////////////////////////////";
-			   }
+			
 			   if (er) {
 				   btn_er->Text = "Subscribe";
 				   tb_er->Text = "You are not subscribed.";
-				   char* strin2 = new char[2];
-				   //strin2 = "20"; 0b010
-				  // send(clientSocket, strin2, 2, 0);
-				   short int subscrp = 0b000;
-				   send(clientSocket, (char*)&subscrp, sizeof(subscrp), 0);
-
-
+				 
+				   short int subscrp = 0b101;
+				   mailiing_status = mailiing_status & subscrp;
+				   send(clientSocket, (char*)&mailiing_status, sizeof(mailiing_status), 0);
 				   er = false;
 			   }
 			   else {
 				   btn_er->Text = "Unsubscribe";
 				   tb_er->Text = "";
-				   char* strin2 = new char[2];
-				  // strin2 = "21";
-				   //send(clientSocket, strin2, 2, 0);
+				  
 				   short int subscrp = 0b010;
-				   send(clientSocket, (char*)&subscrp, sizeof(subscrp), 0);
-
+				   mailiing_status = mailiing_status | subscrp;
+				   send(clientSocket, (char*)&mailiing_status, sizeof(mailiing_status), 0);
 				   er = true;
 			   }
 		   } 
@@ -314,9 +210,7 @@ namespace Project31 {
 
 
 	protected:
-		/// <summary>
-		/// Clean up any resources being used.
-		/// </summary>
+		
 		~MyForm()
 		{
 			if (components)
@@ -374,8 +268,7 @@ namespace Project31 {
 			this->label2->Name = L"label2";
 			this->label2->Size = System::Drawing::Size(261, 29);
 			this->label2->TabIndex = 1;
-			this->label2->Text = L"Weather forecast (60 s)";
-		//	this->label2->Click += gcnew System::EventHandler(this, &MyForm::label2_Click);
+			this->label2->Text = L"Weather forecast";
 			// 
 			// label3
 			// 
@@ -387,7 +280,8 @@ namespace Project31 {
 			this->label3->Name = L"label3";
 			this->label3->Size = System::Drawing::Size(184, 29);
 			this->label3->TabIndex = 2;
-			this->label3->Text = L"Share price (1 s)";
+			this->label3->Text = L"Share price";
+			//this->label3->Click += gcnew System::EventHandler(this, &MyForm::label3_Click);
 			// 
 			// label4
 			// 
@@ -399,7 +293,7 @@ namespace Project31 {
 			this->label4->Name = L"label4";
 			this->label4->Size = System::Drawing::Size(264, 29);
 			this->label4->TabIndex = 3;
-			this->label4->Text = L"Exchange rates (1440 s)";
+			this->label4->Text = L"Exchange rates";
 			// 
 			// tb_wf
 			// 
@@ -418,7 +312,6 @@ namespace Project31 {
 			this->tb_sp->Size = System::Drawing::Size(364, 127);
 			this->tb_sp->TabIndex = 5;
 			this->tb_sp->Text = L"";
-			//this->tb_sp->TextChanged += gcnew System::EventHandler(this, &MyForm::tb_sp_TextChanged);
 			// 
 			// tb_er
 			// 
@@ -493,9 +386,6 @@ namespace Project31 {
 
 		}
 #pragma endregion
-
-
-
 
 };
 }
