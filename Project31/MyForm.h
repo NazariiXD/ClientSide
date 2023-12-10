@@ -22,7 +22,7 @@ namespace Project31 {
 		char message[512];
 	};
 	short int mailiing_status;
-#define PACKET_BUFF_SIZE 10
+
 	using namespace System;
 	using namespace System::ComponentModel;
 	using namespace System::Collections;
