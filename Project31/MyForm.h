@@ -19,8 +19,9 @@ namespace Project31 {
 
 	struct mailingData {
 		short int type;
-		char message[512];
+		char message[200];
 	};
+
 	short int mailiing_status;
 
 	using namespace System;
@@ -108,22 +109,28 @@ namespace Project31 {
 
 
 			if ((receivedPacket.type & 0b001) == 0b001) {
+				string message = receivedPacket.message;
+				String^ text = gcnew String(message.c_str());
 
-				tb_sp->Text = (gcnew String(receivedPacket.message));
+				tb_sp->Invoke(gcnew Action<String^>(this, &MyForm::UpdateTextBoxSP), text);		
 			}
 			else if ((receivedPacket.type & 0b010) == 0b010) {
+				string message = receivedPacket.message;
+				String^ text = gcnew String(message.c_str());
 
-				tb_er->Text = (gcnew String(receivedPacket.message));
+				tb_er->Invoke(gcnew Action<String^>(this, &MyForm::UpdateTextBoxER), text);
 			}
 			else if ((receivedPacket.type & 0b100) == 0b100) {
+				string message = receivedPacket.message;
+				String^ text = gcnew String(message.c_str());
 
-				tb_wf->Text = (gcnew String(receivedPacket.message));
+				tb_wf->Invoke(gcnew Action<String^>(this, &MyForm::UpdateTextBoxWF), text);
 			}
 			else {
-				tb_sp->Text = (gcnew String("Ça korablem :)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))"));
-				tb_er->Text = (gcnew String("Ça korablem :)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))"));
-				tb_wf->Text = (gcnew String("Ça korablem :)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))"));
-				continue;
+				String^ text = gcnew String("Server is not responding. Waiting...");
+				tb_sp->Invoke(gcnew Action<String^>(this, &MyForm::UpdateTextBoxSP), text);
+				tb_er->Invoke(gcnew Action<String^>(this, &MyForm::UpdateTextBoxER), text);
+				tb_wf->Invoke(gcnew Action<String^>(this, &MyForm::UpdateTextBoxWF), text);
 			}
 		}
 	}
@@ -201,6 +208,18 @@ namespace Project31 {
 			   MyThread->Start();
 		   }
 		  
+		   void UpdateTextBoxSP(String^ text) {
+			   tb_sp->Text = text;
+		   }
+
+		   void UpdateTextBoxER(String^ text) {
+			   tb_er->Text = text;
+		   }
+
+		   void UpdateTextBoxWF(String^ text) {
+			   tb_wf->Text = text;
+		   }
+
 
 	private: 
 		System::Void MyForm_FormClosing(System::Object^ sender, System::Windows::Forms::FormClosingEventArgs^ e) {
