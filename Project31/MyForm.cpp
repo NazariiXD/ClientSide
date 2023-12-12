@@ -1,7 +1,5 @@
 #include "MyForm.h"
 
-#include "MyForm.h"
-
 using namespace Project31;
 [STAThread]
 int main() {
