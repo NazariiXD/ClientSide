@@ -93,6 +93,10 @@ namespace Project31 {
 				exit(-1);
 			}
 
+			tb_wf->Text = "You are not subscribed.";
+			tb_er->Text = "You are not subscribed.";
+			tb_sp->Text = "You are not subscribed.";
+
 			mailiing_status = 0b000;
 			Listening();
 		}
